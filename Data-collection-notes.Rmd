@@ -52,3 +52,44 @@ R notes:
 \item List: sequence of data types
 
 \end{itemize}
+
+Accessing Data: 
+Check the directory:
+```{bash}
+pwd
+```
+
+
+Use the summary funtion for data files: It gives some basic starting stats.   
+```{r}
+file <- read.csv('grass_yield.csv')
+
+```
+
+Another way to get a sense of the data is to use a histogram. Two main ways of doing this are using the regular hist function, and the ggplot2 library ggplot function: 
+
+```{r}
+hist(x)
+
+library(ggplot2)
+
+ggplot() +
+  geom_histogram(aes(x),bins = 25)
+```
+
+To access the fitness of the distribution, use the datafit function after calling the distrplus library.  It will give you fitness data in four charts.
+
+```{r}
+library(fitdistrplus) 
+yield_subset <- yield[yield>1]
+w<- fitdist(yield_subset,dist = 'weibull')
+ln<- fitdist(yield_subset,dist = 'lnorm')
+g<- fitdist(yield_subset,dist = 'gamma')
+n<- fitdist(yield_subset,dist = 'norm')
+plot(g)
+plot(n)
+plot(ln)
+plot(w)
+```
+```
+

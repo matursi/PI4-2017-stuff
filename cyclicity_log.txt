@@ -1,0 +1,4 @@
+Epilepsy project Log: 
+
+6/19 
+Today I created a function that takes in a time series from the epilepsy data gathered from the machine learning competition and recovers the cyclic order of the activity levels of different nodes in the ECoG grid.  The assmuption here (I am not sure if the data is being arranged like this), is that the nodes are ordered by rows, going downward.  From there, I displayed the cyclic order in an 8x8 colorgrid.  
