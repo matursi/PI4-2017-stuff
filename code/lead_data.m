@@ -1,4 +1,4 @@
-function [matrices,vectors] = lead_data(session, run, combine, type, time, normalize, subjects)
+function [matrices,vectors,mats, names] = lead_data(session, run, combine, type, time, normalize, rois, subjects)
 
 % Returns the lead matrices for datasets with set parameters.  Inputs must
 % be made in the order above if you only want to put a certain amount.
@@ -29,10 +29,12 @@ function [matrices,vectors] = lead_data(session, run, combine, type, time, norma
 
 % OUTPUT:
 %       matrices: a three dimensional array where the first dimension
-%           indiciates a time series, and the second and thirs are the
+%           indiciates a time series, and the second and third are the
 %           dimnesions of the lead matrix
 %       vectors: a two dimensional array with columns equal to the values
 %           of the upper triangular part of the lead matrices.
+%       mats: the timeseries matrix (a two dimensional array)
+%       names: the names of the files
 
 
 % Set up parameters to be used for arguments
@@ -55,6 +57,9 @@ if nargin <= 5
     normalize = 'fro'
 end
 if nargin <= 6
+    rois = ':'
+end
+if nargin <= 7
     subjects = '*'      
 end
 
@@ -63,7 +68,8 @@ if strcmp(time,':')+strcmp(combine,'none') == 0
 end 
 %% Main %%
 
-mats = []
+mats = [];
+names = [];
 
 %determines combination method and builds a modified timeseries with
 %combined data.
@@ -71,7 +77,8 @@ mats = []
 switch combine
    
     case 'none'
-        mats = retrieve_files(session,run,type,subjects);
+        [mats,names] = retrieve_files(session,run,type,subjects);
+        mats = mats(:,rois,time);
     case 'session'
         %check that session combination choice is not redundant.  See
         %description above.
@@ -85,10 +92,6 @@ switch combine
         part1 = retrieve_files('1',run,type,subjects);
         dim1=size(part1);
         part2 = retrieve_files('2',run,type,subjects);
-        
-        
-        dim1
-       
         
         % builds combined timeseries, where time is accross both runs of a
         % single session
@@ -130,17 +133,16 @@ switch combine
         mats(1:dim1(1),1:dim1(2),1:dim1(3))=part1;
         mats(1:dim1(1),1:dim1(2),dim1(3)+1:2*dim1(3)) = part2;
         mats(1:dim1(1),1:dim1(2),2*dim1(3)+1:3*dim1(3)) = part3;
-        mats(1:dim1(1),1:dim1(2),3*dim1(3)+1:4*dim1(3)) = part4;
-        
-        
+        mats(1:dim1(1),1:dim1(2),3*dim1(3)+1:4*dim1(3)) = part4;              
 end
 
 
 matrices = {};
 vectors = [];
 
-s = size(mats(:,:,time))
+s = size(mats(:,:,time));
 
+% generates lead matrices for each possible run/session combo selected
 for i = 1:s(1)
     [m,v]=lead(reshape(mats(i,:,time),s(2),s(3)),normalize);
     matrices = [matrices, m];
@@ -150,12 +152,12 @@ end
 
 end
 
-function names=subjectarray(filenames)
+function names=subjectarray(filenames) %extracts subject names from filenames
 
 names = {}
 for name = filenames
-    name = name{1}
-    names = [names, name(end-6:end-4)]
+    name = name{1};
+    names = [names, name(end-6:end-4)];
 end
 names
 end

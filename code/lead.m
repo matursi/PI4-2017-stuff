@@ -5,7 +5,17 @@ function [ lm, lm_vals] = lead(data,norm_type)
 % should be a skew symmetric matrix where the elements are 
 % an approximation of lm_ij = \int f_j df_i - f_i.  
 
-%lm_vals is the unraveled vector, lm is the matrix itself
+%INPUT:
+%     data: an n x m matrix, where n is the number of chanels, series to be
+%     used, etc. amd m is the length of the time series
+%     norm_type: choose from 'fro','inf', or other acceptable matlab norm
+%     specifications.  Type 'none' if you don't want your data to be
+%     normalized
+
+%OUTPUT:
+%     lm_vals: is the unraveled vector representing the upper triangular
+%     elements of the lead matrix (used for separability analyses
+%     lm is the matrix itself (used for depictions of the lead elements)
 
 [rgns, times] = size(data);
 
@@ -18,7 +28,9 @@ data = zero_mean(data);
 %and separability
 %put it back in for other things, like calculating the lead vector
 
-data = data/norm(data,norm_type);
+if strcmp(norm_type,'none')==0
+    data = data/norm(data,norm_type);
+end
 
 lm = zeros(rgns);
 lm_vals = [];

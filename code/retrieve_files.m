@@ -15,6 +15,7 @@ function [fileseries, filenames] = retrieve_files(session, run,type,subjects)
 %   an array with the time series with specifications given by the
 %   parameters 
 
+
 switch nargin
     case 0
         session = '*';
@@ -38,15 +39,15 @@ switch nargin
 end
 
 %Picks filenames with session, run,type, and subject specifications 
-fileinfo = dir(['s',session,'_run',run,'_',type,'_sub_',subjects,'.txt']);
+fileinfo = dir(['new_rois/overall/s',session,'_run',run,'_',type,'_sub_',subjects,'.txt']);
 fileinfo = struct2cell(fileinfo);
 filenames = fileinfo(1,:)';
-
-[numrois,serieslength] = size(importdata(filenames{1}))
+%filenames
+[numrois,serieslength] = size(importdata(['new_rois/overall/' filenames{1}]));
 
 fileseries=[];
 for i=1:length(filenames)
-    fileseries(i,1:numrois,1:serieslength)=importdata(filenames{i});
+    fileseries(i,1:numrois,1:serieslength)=importdata(['new_rois/overall/' filenames{i}]);
 end
 
 end

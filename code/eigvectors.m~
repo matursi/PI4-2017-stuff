@@ -1,0 +1,118 @@
+function domeigvectors(obj1,obj2,datafolder)
+% generates a scatterplot of points which are projections of lead/
+% difference vectors of obj1 and obj2 to their respective domain
+% INPUTS:
+%   obj1, obj2:  two leadinfo objects.  These should be of different type,
+%                but, same choice of sessions and runs.  Also, pick same
+%                norms, but objs as I used them had norm specs in the name,
+%                so I didn't check for norm coherence
+%  datafolder:    name of folder to put in figures that will be generated
+
+% FIGURES: doesnot putput anything, but generates the following figures: 
+% 1) 2-D projection of lead vectors to dominant eigenvectors of covariance
+%    matrices of obj1 and obj2
+% 2) If both runs are included, the same as 1, but with the session
+%    difference covariance matrices for objs 1 and 2
+% 3) If both sessions are included, the same as 1, but with the run 
+%    difference covariance matrices for objs 1 and 2
+
+
+%gets types for each obj
+type1 = obj1.type;
+type2 = obj2.type;
+
+
+% makes sure that objs have different subject types, but same session and
+% run values to make comparison coherent
+if strcmp(type1,type2) 
+    error('same types for objects: need different types')
+elseif strcmp(obj1.sessions, obj2.sessions)==0 
+    error('different session choice: need same sessions')
+elseif strcmp(obj1.runs, obj2.runs) == 0
+    error('different run choice: need same runs')
+end
+
+M=dir('Figures');
+
+% gets list of files in Figures folder, checks if datafolder is in it, and
+% makes new folder if it is not (or allows user to cancel because she made
+% typo for folder name
+list_of_files = {M.name}';
+if ~ismember(datafolder,list_of_files)
+    str = input('datafolder does not exist.  Do you want to create new file? Y/N [Y]: ','s');
+    if strcmp('Y',str)
+        mkdir('Figures',datafolder)
+    else
+        print('exiting program...')
+        return;
+    end
+end
+
+% gets session and run values for objs
+session = obj1.sessions;
+run = obj1.runs;
+
+%
+map = [linspace(1,0,50) zeros(1,49); zeros(1,99); zeros(1,49) linspace(0,1,50)]';
+
+x1 = obj1.coveigvects(:,1);
+x2 = obj2.coveigvects(:,1);
+figure('Position',[100,100,1000,400])
+
+subplot(1,2,1)
+vectorImage(x1,length(obj1.ROIs),map,-1);
+title(type1);
+subplot(1,2,2)
+vectorImage(x2,length(obj2.ROIs),map,-1);
+title(type2);
+
+suptitle({['eigenvectors for session ' session ' run ' run]; 
+        ['a= ' num2str(x1'*x2) ' ' datafolder]})
+
+savefig(['Figures/' datafolder '/'  'ctr-vs-tin-eigenvectors_session_' session '_run_' run])
+close
+
+if strcmp('*', run)
+    
+    x1 = obj1.sesdifcoveigvects(:,1);
+    x2 = obj2.sesdifcoveigvects(:,1);
+    figure('Position',[100,100,1000,400])
+
+  
+    subplot(1,2,1)
+    vectorImage(x1,length(obj1.ROIs),map,-1);
+    title(type1);
+    subplot(1,2,2)
+    vectorImage(x2,length(obj2.ROIs),map,-1);
+    title(type2);
+
+    suptitle({['eigenvectors for session difference session ' session]; 
+               ['a= ' num2str(x1'*x2) ' ' datafolder]})
+
+    savefig(['Figures/' datafolder '/ctr-vs-tin-eigenvectors_session_difference_session_' session])
+    close
+end
+    
+if strcmp('*', session)
+    x1 = obj1.rundifcoveigvects(:,1);
+    x2 = obj2.rundifcoveigvects(:,1);
+    figure('Position',[100,100,1000,400])
+
+
+    subplot(1,2,1)
+    vectorImage(x1,length(obj1.ROIs),map,-1);
+    title(type1);
+    subplot(1,2,2)
+    vectorImage(x2,length(obj2.ROIs),map,-1);
+    title(type2);
+
+    suptitle({['eigenvectors for run difference run ' run];
+       ['a= ' num2str(x1'*x2) ' ' datafolder]})
+
+    savefig(['Figures/' datafolder '/ctr-vs-tin-eigenvectors_run_difference_run_' run])
+    close
+
+    end
+
+
+end
