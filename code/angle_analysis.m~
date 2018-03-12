@@ -218,23 +218,16 @@ function a= angle_anal(vects1,vects2,lengthvar1,lengthvar2,map)
 A=[vects1; ones(1,size(vects1,2)); vects2];
 B=A*A';
 
-% adds one for image, to show a clear line separating tinnitus from normal
-% hearing subjects.
+% adds one for image, to show a clear line w
 r= ones(lengthvar1+lengthvar2+1,1);
-
-% If normalized, r(i) is just 1, but this is done in case it's an issue
 for i=1:lengthvar1
     r(i) = norm(vects1(i,:));
 end
 
-% adds 1 in between, to allow for lines of separation
 for i = 1:lengthvar2
     r(i+1+lengthvar1) = norm(vects2(i,:));
 end
 length(r)
-
-% gets the product of norms for lead vectors of subject pairs, but also
-% creates lines of separation.
 C = r*r';
 C(lengthvar1+1,:)=1;
 C(:,lengthvar1+1) = 1;
@@ -244,14 +237,12 @@ B(:,lengthvar1+1) = -1;
 size(B)
 size(C)
 
-% gets angle using dot product formula, and taking the arc-cosine
 angles = B./C;
 
 angles=real(acos(angles));
 %angles(1:30,1:30);
-
-%generates image
 a=image(angles,'CDataMapping', 'scaled');
+
 colormap(map)
 colorbar
 end
