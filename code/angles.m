@@ -96,7 +96,7 @@ n1 = [obj1.coveigvects(:,n), obj2.coveigvects(:,n)];
 n2 = [obj1.sesdifcoveigvects(:,n), obj2.sesdifcoveigvects(:,n)];
 n3 = [obj1.rundifcoveigvects(:,n), obj2.rundifcoveigvects(:,n)];
 
-%these are the same as above?
+%calculate the angles between eigenvectors
 ang1 = ang(obj2.coveigvects(:,1:m), obj1.coveigvects(:,1:m));
 ang2 = ang(obj1.sesdifcoveigvects(:,1:m), obj2.sesdifcoveigvects(:,1:m));
 ang3 = ang(obj1.rundifcoveigvects(:,1:m), obj2.rundifcoveigvects(:,1:m));
@@ -163,12 +163,13 @@ end
 
 
 function [angle,angs] = ang(eigvs1,eigvs2)
-
+% This function is used to calculate angles between two lists of
+% eigenvectors, returns n angles for n pairs, in eigvs1, eigvs2
 angle = [];
 
-s= size(eigvs1)
+s= size(eigvs1) %gets number of eigenvectors and their lengths
 
-[size(eigvs1(:,1)'), size(eigvs2(:,1))]
+%[size(eigvs1(:,1)'), size(eigvs2(:,1))]
 
 for i = 1:s(2)
     angle(i) = eigvs1(:,i)'*eigvs2(:,i)/(norm(eigvs1(:,i))*norm(eigvs2(:,i)));
@@ -176,7 +177,8 @@ end
 
 end
 
-%fix this!!!
+%fix this!!! I could not complete this function, nor did I necessarily need
+%to, but it's not called in the main code. 
 function [angs,a]= angle_anal(vects1,vects2)
 map = [linspace(1,0,50), zeros(1,49); zeros(1,99); zeros(1,49), linspace(0,1,50)]';
 
@@ -208,22 +210,43 @@ colormap(map)
 colorbar
 end
 
+
 function figureplot = figureplot(acoords, bcoords, anames, bnames,...
     a, b, angle, n, tit, leg,labs,ms)
-%Coordinates to be plotted :acoords, bcoords
-%labels of acoords, bcoords
-% number of points for subjects a, b
-% angle
+% This functions creates a figure consisting of projections of points to
+% 2-D space. The data is used for the title and the filename, and two
+% colors are sued because we want to copare two data types.
+% INPUTS: 
+% acoords:          group a coordinate points
+% bcoords:          group b coordinate points
+% anames:           sublect labels for group a
+% bnames:           subject labels for group b
+% a, b:             number of points for each subject (may be 1,2,4)
+% angle:            list of angles between eigenvectors
+% n:                choice of eigenvector you want to project to
+% tit:              basic title displaying what kind of projection you are
+%                   presenting
+% leg:              legend for names for acoords and bcoords
+% labs:             0 or 1: if 1, will give labels for outlier subjects
+% ms:               cell-string for missing subjects/ rois
+
+%OUTPUT:
+%figureplot:        a projection scatterplot
+
 
  
 f = figure();
 hold on
 
+%This is to see some data along the way
 polyfit(acoords(1,:),acoords(2,:),1)
 polyfit(bcoords(1,:),bcoords(2,:),1)
+
+%plots points
 scatter(acoords(1,:),acoords(2,:),'filled')
 scatter(bcoords(1,:),bcoords(2,:),'filled')
 
+%Throws in outlier labels if == 1
 if labs == 1
     
 r = [];
@@ -243,12 +266,13 @@ text(c(1,outliers),c(2,outliers), labels(outliers),...
 
 end
 
-
+% labels describing the eigenvector you are projecting to
 xlabel([leg{1} ' eigenvector']);
 
 ylabel([leg{2} ' eigenvector']);
 
-
+% title for figureplot, contains info about angle, choice of eigenvector,
+% and missing subject/ rois
 title({tit; ['angle = ' num2str(angle(n))]; ms  } );
 legend(leg);
 
